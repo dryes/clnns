@@ -153,7 +153,8 @@ def getnzb(link, title, output):
     return True
 
 def main(args):
-    print('Searching on: %s ..' % args['provider'][0], end='')
+    sys.stdout.write('Searching on: %s ..' % args['provider'][0])
+    sys.stdout.flush()
 
     try:
         url = '%s/api?t=search%s&apikey=%s%s%s%s%s' % (args['provider'][0], args['category'], args['provider'][1], args['limit'], args['maxage'], args['offset'], args['query'])
