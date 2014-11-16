@@ -153,7 +153,7 @@ def getnzb(link, title, output):
     return True
 
 def main(args):
-    sys.stdout.write('Searching on: %s ..' % args['provider'][0])
+    sys.stdout.write('Searching on: %s ... ' % args['provider'][0])
     sys.stdout.flush()
 
     try:
@@ -166,10 +166,10 @@ def main(args):
 
     results = len(apiresponse.entries)
     if apiresponse.entries is None or results == 0:
-        print('. no results.')
+        print('no results.')
         sys.exit()
 
-    print('. ' + str(results) + ' results.\n')
+    print(str(results) + ' results.\n')
 
     if args['first'] == True:
         if args['download'] == False and args['sabnzbd_url'] is not None:
