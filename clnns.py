@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Author: Joseph Wiseman <joswiseman@gmail>
+# Author: Joseph Wiseman <joswiseman@cock.li>
 # URL: https://github.com/dryes/clnns/
 
 import argparse,configparser,feedparser,shutil,os,socket,sys,time,urllib.request
