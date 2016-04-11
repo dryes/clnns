@@ -3,7 +3,16 @@
 # Author: Joseph Wiseman <joswiseman@cock.li>
 # URL: https://github.com/dryes/clnns/
 
-import argparse,configparser,feedparser,shutil,os,socket,sys,time,urllib.request
+import argparse
+import configparser
+import feedparser
+import shutil
+import os
+import socket
+import sys
+import time
+import urllib.request
+
 
 def init_configparser(filename='~/.config/clnns/clnns.ini'):
     filename = os.path.expanduser(filename)
@@ -36,19 +45,25 @@ def init_configparser(filename='~/.config/clnns/clnns.ini'):
 
     return config
 
+
 def init_argparse(config):
-    parser = argparse.ArgumentParser(description='command line newznab search.', usage=os.path.basename(sys.argv[0]) + ' [--opts] query')
+    parser = argparse.ArgumentParser(
+        description='command line newznab search.', usage=os.path.basename(sys.argv[0]) + ' [--opts] query')
 
     parser.add_argument('query', nargs='*', help='search string', default='')
 
-    parser.add_argument('--provider', '-p', help='alias of provider', default=None)
+    parser.add_argument('--provider', '-p',
+                        help='alias of provider', default=None)
 
     parser.add_argument('--category', '-c', help='category #', default='')
-    parser.add_argument('--limit', '-l', help='maximum number of results', default=15)
-    parser.add_argument('--maxage', '-m', help='maximum age of results in days', default=1500)
+    parser.add_argument(
+        '--limit', '-l', help='maximum number of results', default=15)
+    parser.add_argument(
+        '--maxage', '-m', help='maximum age of results in days', default=1500)
     parser.add_argument('--offset', help='results offset from 0', default=0)
 
-    parser.add_argument('--output', '-o', help='output dir.', default=os.getcwd())
+    parser.add_argument(
+        '--output', '-o', help='output dir.', default=os.getcwd())
 
     sabnzbd = []
     try:
@@ -60,13 +75,19 @@ def init_argparse(config):
         sabnzbd.append(None)
         sabnzbd.append(None)
         sabnzbd.append('0')
-    parser.add_argument('--sabnzbd-url', help='url of sabnzbd', default=sabnzbd[0])
-    parser.add_argument('--sabnzbd-nzbkey', help='sabnzbd nzbkey', default=sabnzbd[1])
-    parser.add_argument('--sabnzbd-priority', help='sabnzbd priority', default=sabnzbd[2])
+    parser.add_argument(
+        '--sabnzbd-url', help='url of sabnzbd', default=sabnzbd[0])
+    parser.add_argument('--sabnzbd-nzbkey',
+                        help='sabnzbd nzbkey', default=sabnzbd[1])
+    parser.add_argument('--sabnzbd-priority',
+                        help='sabnzbd priority', default=sabnzbd[2])
 
-    parser.add_argument('--first', '-f', action='store_true', help='grab first result without prompt', default=False)
-    parser.add_argument('--download', '-d', action='store_true', help='do not send to sab even if set in ini', default=False)
-    parser.add_argument('--sleep', '-s', help='number of seconds to wait between requests', default=3)
+    parser.add_argument('--first', '-f', action='store_true',
+                        help='grab first result without prompt', default=False)
+    parser.add_argument('--download', '-d', action='store_true',
+                        help='do not send to sab even if set in ini', default=False)
+    parser.add_argument(
+        '--sleep', '-s', help='number of seconds to wait between requests', default=3)
 
     args = parser.parse_args()
     args = vars(args)
@@ -74,8 +95,8 @@ def init_argparse(config):
     args['query'] = ' '.join(args['query'])
 
     for h in config['hosts']:
-         firsthost = h
-         break
+        firsthost = h
+        break
 
     if len(args['query']) > 0:
         args['query'] = '&q=' + str(args['query'])
@@ -94,7 +115,8 @@ def init_argparse(config):
         args['provider'] = config['hosts'][args['provider']].split(';')
 
     if len(args['provider'][1]) != 32:
-        print('API key for %r is incorrect length - edit config file.' % (args['provider'][0]))
+        print('API key for %r is incorrect length - edit config file.' %
+              (args['provider'][0]))
         sys.exit(1)
 
     if args['sabnzbd_nzbkey'] is not None and len(args['sabnzbd_nzbkey']) != 32:
@@ -107,11 +129,14 @@ def init_argparse(config):
 
     return args
 
+
 def sendtosab(link, title, url, nzbkey, priority):
     try:
         socket.setdefaulttimeout(30)
-        api = '%s/api?mode=addurl&apikey=%s&priority=%s&nzbname=%s&name=%s' % (url, nzbkey, priority, title.replace(' ', '_'), urllib.parse.quote(link))
-        urllib.request.urlopen(urllib.request.Request(api.replace('//api?', '/api?')))
+        api = '%s/api?mode=addurl&apikey=%s&priority=%s&nzbname=%s&name=%s' % (
+            url, nzbkey, priority, title.replace(' ', '_'), urllib.parse.quote(link))
+        urllib.request.urlopen(urllib.request.Request(
+            api.replace('//api?', '/api?')))
     except:
         if len(str(sys.exc_info()[1])) > 0:
             print(sys.exc_info()[1])
@@ -152,13 +177,16 @@ def getnzb(link, title, output):
     print('%r downloaded successfully.' % (output))
     return True
 
+
 def main(args):
     sys.stdout.write('Searching on: %s ... ' % args['provider'][0])
     sys.stdout.flush()
 
     try:
-        url = '%s/api?t=search%s&apikey=%s%s%s%s%s' % (args['provider'][0], args['category'], args['provider'][1], args['limit'], args['maxage'], args['offset'], args['query'])
-        apiresponse = feedparser.parse(url.replace('//api?t', '/api?t').replace(' ', '%20'))
+        url = '%s/api?t=search%s&apikey=%s%s%s%s%s' % (args['provider'][0], args['category'], args[
+                                                       'provider'][1], args['limit'], args['maxage'], args['offset'], args['query'])
+        apiresponse = feedparser.parse(url.replace(
+            '//api?t', '/api?t').replace(' ', '%20'))
     except:
         if len(str(sys.exc_info()[1])) > 0:
             print(sys.exc_info()[1])
@@ -171,18 +199,19 @@ def main(args):
 
     print(str(results) + ' results.\n')
 
-    if args['first'] == True:
-        if args['download'] == False and args['sabnzbd_url'] is not None:
-            if sendtosab(apiresponse.entries[0]['link'], apiresponse.entries[0]['title'], args['sabnzbd_url'], args['sabnzbd_nzbkey'], args['sabnzbd_priority']) == False:
+    if args['first'] is True:
+        if args['download'] is False and args['sabnzbd_url'] is not None:
+            if sendtosab(apiresponse.entries[0]['link'], apiresponse.entries[0]['title'], args['sabnzbd_url'], args['sabnzbd_nzbkey'], args['sabnzbd_priority']) is False:
                 return False
         else:
-            if getnzb(apiresponse.entries[0]['link'], apiresponse.entries[0]['title'], args['output']) == False:
+            if getnzb(apiresponse.entries[0]['link'], apiresponse.entries[0]['title'], args['output']) is False:
                 return False
         return True
 
     i = 0
     for r in apiresponse.entries:
-        print('[%s]\t%s\n\t   %s -- %s\n' % (str((i+1)), r['title'], r['category'], r['published']))
+        print('[%s]\t%s\n\t   %s -- %s\n' %
+              (str((i + 1)), r['title'], r['category'], r['published']))
         i += 1
 
     rs = input('enter #s to download (eg.: 1 2 4-6): ')
@@ -196,27 +225,28 @@ def main(args):
             continue
         if '-' in n:
             n = n.split('-')
-            for i in range(int(n[0]), (int(n[1])+1)):
+            for i in range(int(n[0]), (int(n[1]) + 1)):
                 if str(i).isdigit():
-                    get.append((i-1))
+                    get.append((i - 1))
         elif n.isdigit():
-            get.append((int(n)-1))
+            get.append((int(n) - 1))
 
     for i in get:
-         if i > results:
-             continue
-         if args['download'] == False and args['sabnzbd_url'] is not None:
-            if sendtosab(apiresponse.entries[i]['link'], apiresponse.entries[i]['title'], args['sabnzbd_url'], args['sabnzbd_nzbkey'], args['sabnzbd_priority']) == False:
+        if i > results:
+            continue
+        if args['download'] is False and args['sabnzbd_url'] is not None:
+            if sendtosab(apiresponse.entries[i]['link'], apiresponse.entries[i]['title'], args['sabnzbd_url'], args['sabnzbd_nzbkey'], args['sabnzbd_priority']) is False:
                 return False
-         else:
-            if getnzb(apiresponse.entries[i]['link'], apiresponse.entries[i]['title'], args['output']) == False:
+        else:
+            if getnzb(apiresponse.entries[i]['link'], apiresponse.entries[i]['title'], args['output']) is False:
                 return False
-         time.sleep(args['sleep'])
+        time.sleep(args['sleep'])
 
     return True
 
-        
+
 if __name__ == '__main__':
-    args = init_argparse(init_configparser(filename='~/.config/clnns/clnns.ini'))
-    if main(args) == False:
+    args = init_argparse(init_configparser(
+        filename='~/.config/clnns/clnns.ini'))
+    if main(args) is False:
         sys.exit(1)
